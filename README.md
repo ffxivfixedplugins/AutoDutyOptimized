@@ -49,7 +49,7 @@ Settings can be accessed via the Plugin Installer or using the chat command `/ad
 Additionally, the following plugins are required. Right-click the name of the plugin and copy the URL to use it to add to your repositories in-game.
 
 - [vnavmesh](https://puni.sh/api/repository/veyn): Automatic navigation with waypoints
-- [Rotation Solver Reborn](https://raw.githubusercontent.com/FFXIV-CombatReborn/CombatRebornRepo/main/pluginmaster.json): Automatic rotation execution, all jobs supported
+- [Wrath Combo](https://github.com/PunishXIV/WrathCombo) or [Rotation Solver Reborn](https://raw.githubusercontent.com/FFXIV-CombatReborn/CombatRebornRepo/main/pluginmaster.json): Automatic rotation execution, all jobs supported
 - [Veyn's Boss Mod](https://puni.sh/api/repository/veyn) or [BossmodReborn](https://raw.githubusercontent.com/FFXIV-CombatReborn/CombatRebornRepo/main/pluginmaster.json): Automatic fight execution for bosses
 
 ## Optional Plugins
@@ -59,13 +59,15 @@ The following plugins are optional. They integrate with AutoDuty well and in som
 - [Deliveroo](https://plugins.carvel.li): Automatically turns in items to your Grand Company
 - [Gearsetter](https://plugins.carvel.li): Automatically finds equipment upgrades in your inventory
 - [AutoRetainer](https://love.puni.sh/ment.json): Automatically manages your retainers and submersibles as well as sends them out on ventures
-
+ 
 # Getting help
 
 When you've found a bug or think you have an issue with the plugin, please ask in [this channel](https://discord.com/channels/1001823907193552978/1236757595738476725) in the [Puni.sh Discord server](https://discord.gg/punishxiv). It might be a known issue or people might be able to help you quickly. Additionally, sometimes it might be an issue with one of the required plugins. Users in Discord will be able to help triage the issue and send you to the right place.
 
 Best practice is to not say "I died in this dungeon and I don't know why." Please make sure to include as much detail as possible. What boss were you on? Did you get stuck in a specific spot?
 
-For support with Veyn's Boss Mod and vnavmesh, please ask in [this channel](https://discord.com/channels/1001823907193552978/1191076246860349450) in the [Puni.sh Discord server](https://discord.gg/punishxiv). For support with BossModReborn and Rotation Solver Reborn, please ask in the [Combat Reborn Discord server](https://discord.gg/p54TZMPnC9).
+For support with Veyn's Boss Mod and vnavmesh, please ask in [this channel](https://discord.com/channels/1001823907193552978/1191076246860349450) in the [Puni.sh Discord server](https://discord.gg/punishxiv),
+or support for Wrath Combo in [this channel](https://discord.com/channels/1001823907193552978/1271175781569003590) in the Puni.sh server. For support with BossModReborn and 
+Rotation Solver Reborn, please ask in the [Combat Reborn Discord server](https://discord.gg/p54TZMPnC9).
 
 Lastly, feel free to create issues with feature requests and bug reports.
