@@ -9,4 +9,8 @@ And I'll see if I can alleviate it.
 
 Currently up-to-date with autoduty version: 0.0.0.182+
 
+# Dalamud Repository
+
+You can also add https://raw.githubusercontent.com/ffxivfixedplugins/PluginRepository/main/repo.json to the dalamud repositories and install this plugin from there.
+
 
