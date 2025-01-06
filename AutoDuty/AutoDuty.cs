@@ -75,7 +75,6 @@ public sealed class AutoDuty : IDalamudPlugin
     }
     internal uint CurrentTerritoryType = 0;
     internal int CurrentPath = -1;
-    internal long lastRotationSettingMillis = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
     internal bool SupportLevelingEnabled => LevelingModeEnum == LevelingMode.Support;
     internal bool TrustLevelingEnabled => LevelingModeEnum == LevelingMode.Trust;
     internal bool LevelingEnabled => LevelingModeEnum != LevelingMode.None;
@@ -968,7 +967,7 @@ public sealed class AutoDuty : IDalamudPlugin
         if (Indexer == -1 || Indexer >= Actions.Count)
             return;
         
-        if (this.Configuration is { AutoManageRotationPluginState: true, UsingAlternativeRotationPlugin: false } && !Svc.Condition[ConditionFlag.OccupiedInCutSceneEvent])
+        if (this.Configuration is { AutoManageRotationPluginState: true, UsingAlternativeRotationPlugin: false } && !Svc.Condition[ConditionFlag.OccupiedInCutSceneEvent] && EzThrottler.Throttle("donotspamplugins", 500))
             SetRotationPluginSettings(true);
         
         if (!TaskManager.IsBusy)
@@ -1180,11 +1179,6 @@ public sealed class AutoDuty : IDalamudPlugin
 
     internal void SetRotationPluginSettings(bool on, bool ignoreConfig = false)
     {
-        if (((DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) - lastRotationSettingMillis) < 5000)
-        {
-            return;
-        }
-        lastRotationSettingMillis = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
         if (!ignoreConfig && !this.Configuration.AutoManageRotationPluginState)
             return;
         
