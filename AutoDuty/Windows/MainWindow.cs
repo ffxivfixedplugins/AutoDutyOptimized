@@ -28,7 +28,7 @@ public class MainWindow : Window, IDisposable
     private static string openTabName = "";
 
     public MainWindow() : base(
-        $"AutoDuty v0.0.0.{Plugin.Configuration.Version}###Autoduty")
+        $"AutoDuty Optimized v{Plugin.Configuration.Version}###Autoduty")
     {
         SizeConstraints = new WindowSizeConstraints
         {
