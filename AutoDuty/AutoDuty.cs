@@ -40,6 +40,7 @@ using AutoDuty.Updater;
 namespace AutoDuty;
 
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Data;
 using ECommons.Reflection;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -189,10 +190,11 @@ public sealed class AutoDuty : IDalamudPlugin
     private IGameObject? treasureCofferGameObject = null;
     //private readonly TinyMessageBus _messageBusSend = new("AutoDutyBroadcaster");
     //private readonly TinyMessageBus _messageBusReceive = new("AutoDutyBroadcaster");
-    private bool _recentlyWatchedCutscene = false;
-    private bool _lootTreasure;
-    private SettingsActive _settingsActive = SettingsActive.None;
-    private SettingsActive _bareModeSettingsActive = SettingsActive.None;
+    private         bool           _recentlyWatchedCutscene = false;
+    private         bool           _lootTreasure;
+    private         SettingsActive _settingsActive         = SettingsActive.None;
+    private         SettingsActive _bareModeSettingsActive = SettingsActive.None;
+    public readonly bool           isDev;
 
     public AutoDuty()
     {
@@ -211,6 +213,9 @@ public sealed class AutoDuty : IDalamudPlugin
             AssemblyDirectoryInfo = AssemblyFileInfo.Directory;
             Configuration.Version = (PluginInterface.IsTesting ? PluginInterface.Manifest.TestingAssemblyVersion ?? PluginInterface.Manifest.AssemblyVersion : PluginInterface.Manifest.AssemblyVersion).Revision;
             Configuration.Save();
+
+            this.isDev = PluginInterface.IsDev;
+
             if (!_configDirectory.Exists)
                 _configDirectory.Create();
             if (!PathsDirectory.Exists)
@@ -1550,7 +1555,17 @@ public sealed class AutoDuty : IDalamudPlugin
     private unsafe void OnCommand(string command, string args)
     {
         // in response to the slash command
-        var argsArray = args.ToLower().Split(" ");
+        Match        match   = RegexHelper.ArgumentParserRegex().Match(args.ToLower());
+        List<string> matches = [];
+
+        while (match.Success)
+        {
+            matches.Add(match.Groups[match.Groups[1].Length > 0 ? 1 : 0].Value);
+            match = match.NextMatch();
+        }
+
+        string[] argsArray = matches.ToArray();
+
         switch (argsArray[0])
         {
             case "config" or "cfg":
@@ -1559,7 +1574,7 @@ public sealed class AutoDuty : IDalamudPlugin
                 else if (argsArray[1].Equals("list"))
                     ConfigHelper.ListConfig();
                 else
-                    ConfigHelper.ModifyConfig(argsArray[1], argsArray[2]);
+                    ConfigHelper.ModifyConfig(argsArray[1], argsArray[2..]);
                 break;
             case "start":
                 StartNavigation();
