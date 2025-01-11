@@ -7,7 +7,7 @@ AutoDuty can be found here: https://github.com/ffxivcode/AutoDuty/
 If you have issues regarding FrameRate loss and other performance issues regarding AutoDuty, feel free to add an issue on this repository. 
 And I'll see if I can alleviate it.
 
-Currently up-to-date with autoduty version: 0.0.0.182+
+Currently up-to-date with autoduty version: 0.0.0.183+
 
 # Dalamud Repository
 
