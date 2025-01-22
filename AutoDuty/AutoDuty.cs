@@ -196,6 +196,8 @@ public sealed class AutoDuty : IDalamudPlugin
     private         SettingsActive _bareModeSettingsActive = SettingsActive.None;
     public readonly bool           isDev;
 
+    public HashSet<uint> loadedDungeonsForRebuild = [];
+
     public AutoDuty()
     {
         try
@@ -344,7 +346,7 @@ public sealed class AutoDuty : IDalamudPlugin
                 return;
             }
 
-            ContentPathsManager.DutyPath? path = CurrentPath < 0 && Player.Available ?
+            ContentPathsManager.DutyPath? path = CurrentPath < 0 ?
                                                      container.SelectPath(out CurrentPath) :
                                                      container.Paths[CurrentPath > -1 ? CurrentPath : 0];
 
@@ -576,8 +578,19 @@ public sealed class AutoDuty : IDalamudPlugin
             Queue(CurrentTerritoryContent);
         }
         TaskManager.Enqueue(() => Svc.Log.Debug($"Done Queueing-WaitDutyStarted, NavIsReady"));
-        TaskManager.Enqueue(() => Svc.DutyState.IsDutyStarted, "Run-WaitDutyStarted");
+        TaskManager.Enqueue(() => Svc.DutyState.IsDutyStarted,          "Run-WaitDutyStarted");
         TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Nav_IsReady(), int.MaxValue, "Run-WaitNavIsReady");
+        TaskManager.Enqueue(() =>
+                            {
+                                if (this.Configuration.RebuildNavmeshOnFirstEntry && !Plugin.loadedDungeonsForRebuild.Contains(this.CurrentTerritoryContent.Id))
+                                {
+                                    //this.Chat.ExecuteCommand("/vnav rebuild");
+                                    VNavmesh_IPCSubscriber.Nav_Rebuild();
+                                    Plugin.loadedDungeonsForRebuild.Add(this.CurrentTerritoryContent.Id);
+                                }
+                            }, int.MaxValue, "Run-NavRebuild");
+        TaskManager.DelayNext("Run-WaitNavRebuild100", 100);
+        TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Nav_IsReady(), int.MaxValue, "Run-WaitNavIsReady2");
         TaskManager.Enqueue(() => Svc.Log.Debug($"Start Navigation"));
         TaskManager.Enqueue(() => StartNavigation(startFromZero), "Run-StartNavigation");
         if (CurrentLoop == 0)
@@ -892,9 +905,12 @@ public sealed class AutoDuty : IDalamudPlugin
 
         if (!VNavmesh_IPCSubscriber.SimpleMove_PathfindInProgress() && !VNavmesh_IPCSubscriber.Path_IsRunning())
         {
+            Chat.Instance.ExecuteCommand("/automove off");
             VNavmesh_IPCSubscriber.Path_SetTolerance(0.25f);
             if (PathAction.Name == "MoveTo" && PathAction.Arguments.Count > 0 && bool.TryParse(PathAction.Arguments[0], out bool useMesh) && !useMesh)
+            {
                 VNavmesh_IPCSubscriber.Path_MoveTo([PathAction.Position], false);
+            }
             else
                 VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(PathAction.Position, false);
             Stage = Stage.Moving;
@@ -1564,7 +1580,7 @@ public sealed class AutoDuty : IDalamudPlugin
             match = match.NextMatch();
         }
 
-        string[] argsArray = matches.ToArray();
+        string[] argsArray = matches.Count > 0 ? matches.ToArray() : [string.Empty];
 
         switch (argsArray[0])
         {

@@ -186,17 +186,17 @@ namespace AutoDuty.IPC
 
         internal static bool IsEnabled => IPCSubscriber_Common.IsReady("vnavmesh");
 
-        [EzIPC("Nav.IsReady", true)] internal static readonly Func<bool> Nav_IsReady;
-        [EzIPC("Nav.BuildProgress", true)] internal static readonly Func<float> Nav_BuildProgress;
-        [EzIPC("Nav.Reload", true)] internal static readonly Action Nav_Reload;
-        [EzIPC("Nav.Rebuild", true)] internal static readonly Action Nav_Rebuild;
-        [EzIPC("Nav.Pathfind", true)] internal static readonly Func<Vector3, Vector3, bool, Task<List<Vector3>>> Nav_Pathfind;
+        [EzIPC("Nav.IsReady",            true)] internal static readonly Func<bool>                                                           Nav_IsReady;
+        [EzIPC("Nav.BuildProgress",      true)] internal static readonly Func<float>                                                          Nav_BuildProgress;
+        [EzIPC("Nav.Reload",             true)] internal static readonly Func<bool>                                                           Nav_Reload;
+        [EzIPC("Nav.Rebuild",            true)] internal static readonly Func<bool>                                                           Nav_Rebuild;
+        [EzIPC("Nav.Pathfind",           true)] internal static readonly Func<Vector3, Vector3, bool, Task<List<Vector3>>>                    Nav_Pathfind;
         [EzIPC("Nav.PathfindCancelable", true)] internal static readonly Func<Vector3, Vector3, bool, CancellationToken, Task<List<Vector3>>> Nav_PathfindCancelable;
-        [EzIPC("Nav.PathfindCancelAll", true)] internal static readonly Action Nav_PathfindCancelAll;
-        [EzIPC("Nav.PathfindInProgress", true)] internal static readonly Func<bool> Nav_PathfindInProgress;
-        [EzIPC("Nav.PathfindNumQueued", true)] internal static readonly Func<int> Nav_PathfindNumQueued;
-        [EzIPC("Nav.IsAutoLoad", true)] internal static readonly Func<bool> Nav_IsAutoLoad;
-        [EzIPC("Nav.SetAutoLoad", true)] internal static readonly Action<bool> Nav_SetAutoLoad;
+        [EzIPC("Nav.PathfindCancelAll",  true)] internal static readonly Action                                                               Nav_PathfindCancelAll;
+        [EzIPC("Nav.PathfindInProgress", true)] internal static readonly Func<bool>                                                           Nav_PathfindInProgress;
+        [EzIPC("Nav.PathfindNumQueued",  true)] internal static readonly Func<int>                                                            Nav_PathfindNumQueued;
+        [EzIPC("Nav.IsAutoLoad",         true)] internal static readonly Func<bool>                                                           Nav_IsAutoLoad;
+        [EzIPC("Nav.SetAutoLoad",        true)] internal static readonly Action<bool>                                                         Nav_SetAutoLoad;
 
         [EzIPC("Query.Mesh.NearestPoint", true)] internal static readonly Func<Vector3, float, float, Vector3> Query_Mesh_NearestPoint;
         [EzIPC("Query.Mesh.PointOnFloor", true)] internal static readonly Func<Vector3, bool, float, Vector3> Query_Mesh_PointOnFloor;
@@ -286,23 +286,31 @@ namespace AutoDuty.IPC
             IncludeNPCs = 12,//bool
         }
 
-        public enum AutoRotationConfigDPSRotationSubset
+        public enum DPSRotationMode
         {
-            Manual = 0,
-            Lowest_Current = 4,
-            Highest_Max = 1,
-            Tank_Target = 5,
-            Nearest = 6,
+            Manual          = 0,
+            Highest_Max     = 1,
+            Lowest_Max      = 2,
+            Highest_Current = 3,
+            Lowest_Current  = 4,
+            Tank_Target     = 5,
+            Nearest         = 6,
+            Furthest        = 7,
         }
 
         /// <summary>
         ///     The subset of <see cref="AutoRotationConfig.HealerRotationMode" /> options
         ///     that can be set via IPC.
         /// </summary>
-        public enum AutoRotationConfigHealerRotationSubset
+        public enum HealerRotationMode
         {
-            Manual = 0,
-            Lowest_Current = 2
+            Manual          = 0,
+            Highest_Current = 1,
+            Lowest_Current  = 2
+            //Self_Priority,
+            //Tank_Priority,
+            //Healer_Priority,
+            //DPS_Priority,
         }
 
         private static Guid? _curLease;
@@ -438,8 +446,8 @@ namespace AutoDuty.IPC
         /// </param>
         /// <value>+1 <c>set</c></value>
         /// <seealso cref="AutoRotationConfigOption"/>
-        /// <seealso cref="AutoRotationConfigDPSRotationSubset"/>
-        /// <seealso cref="AutoRotationConfigHealerRotationSubset"/>
+        /// <seealso cref="DPSRotationMode"/>
+        /// <seealso cref="HealerRotationMode"/>
         [EzIPC] private static readonly Action<Guid, AutoRotationConfigOption, object> SetAutoRotationConfigState;
 
         internal static void SetJobAutoReady()
@@ -460,12 +468,12 @@ namespace AutoDuty.IPC
                     SetAutoRotationConfigState(_curLease.Value, AutoRotationConfigOption.AutoRezDPSJobs, true);
                     SetAutoRotationConfigState(_curLease.Value, AutoRotationConfigOption.IncludeNPCs, true);
 
-                    AutoRotationConfigDPSRotationSubset dpsConfig = Plugin.CurrentPlayerItemLevelandClassJob.Value.GetCombatRole() == CombatRole.Tank ?
+                    DPSRotationMode dpsConfig = Plugin.CurrentPlayerItemLevelandClassJob.Value.GetCombatRole() == CombatRole.Tank ?
                                                                         Plugin.Configuration.Wrath_TargetingTank :
                                                                         Plugin.Configuration.Wrath_TargetingNonTank;
                     SetAutoRotationConfigState(_curLease.Value, AutoRotationConfigOption.DPSRotationMode, dpsConfig);
 
-                    SetAutoRotationConfigState(_curLease.Value, AutoRotationConfigOption.HealerRotationMode, AutoRotationConfigHealerRotationSubset.Lowest_Current);
+                    SetAutoRotationConfigState(_curLease.Value, AutoRotationConfigOption.HealerRotationMode, HealerRotationMode.Lowest_Current);
                 }
             }
         }

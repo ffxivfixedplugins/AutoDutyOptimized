@@ -134,15 +134,16 @@ public class Configuration : IPluginConfiguration
             HideBossModAIConfig = !value;
         }
     }
-    public bool AutoManageVnavAlignCamera = true;
-    public bool LootTreasure = true;
-    public LootMethod LootMethodEnum = LootMethod.AutoDuty;
-    public bool LootBossTreasureOnly = false;
-    public int TreasureCofferScanDistance = 25;
-    public bool OverridePartyValidation = false;
-    public bool UsingAlternativeRotationPlugin = false;
-    public bool UsingAlternativeMovementPlugin = false;
-    public bool UsingAlternativeBossPlugin = false;
+    public bool       AutoManageVnavAlignCamera      = true;
+    public bool       LootTreasure                   = true;
+    public LootMethod LootMethodEnum                 = LootMethod.AutoDuty;
+    public bool       LootBossTreasureOnly           = false;
+    public int        TreasureCofferScanDistance     = 25;
+    public bool       RebuildNavmeshOnFirstEntry     = true;
+    public bool       OverridePartyValidation        = false;
+    public bool       UsingAlternativeRotationPlugin = false;
+    public bool       UsingAlternativeMovementPlugin = false;
+    public bool       UsingAlternativeBossPlugin     = false;
 
     //PreLoop Config Options
     public bool EnablePreLoopActions = true;
@@ -316,8 +317,8 @@ public class Configuration : IPluginConfiguration
     #region Wrath
 
     public   bool                                                       Wrath_AutoSetupJobs { get; set; } = true;
-    internal Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset    Wrath_TargetingTank    = Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset.Highest_Max;
-    internal Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset    Wrath_TargetingNonTank = Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset.Lowest_Current;
+    internal Wrath_IPCSubscriber.DPSRotationMode    Wrath_TargetingTank    = Wrath_IPCSubscriber.DPSRotationMode.Highest_Max;
+    internal Wrath_IPCSubscriber.DPSRotationMode    Wrath_TargetingNonTank = Wrath_IPCSubscriber.DPSRotationMode.Lowest_Current;
 
 
     #endregion
@@ -518,9 +519,9 @@ public static class ConfigTab
                         ImGui.PushItemWidth(150 * ImGuiHelpers.GlobalScale);
                         if (ImGui.BeginCombo("##ConfigWrathTargetingTank", Configuration.Wrath_TargetingTank.ToCustomString()))
                         {
-                            foreach (Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset targeting in Enum.GetValues(typeof(Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset)))
+                            foreach (Wrath_IPCSubscriber.DPSRotationMode targeting in Enum.GetValues(typeof(Wrath_IPCSubscriber.DPSRotationMode)))
                             {
-                                if(targeting == Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset.Tank_Target)
+                                if(targeting == Wrath_IPCSubscriber.DPSRotationMode.Tank_Target)
                                     continue;
 
                                 if (ImGui.Selectable(targeting.ToCustomString()))
@@ -538,7 +539,7 @@ public static class ConfigTab
                         ImGui.PushItemWidth(150 * ImGuiHelpers.GlobalScale);
                         if (ImGui.BeginCombo("##ConfigWrathTargetingNonTank", Configuration.Wrath_TargetingNonTank.ToCustomString()))
                         {
-                            foreach (Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset targeting in Enum.GetValues(typeof(Wrath_IPCSubscriber.AutoRotationConfigDPSRotationSubset)))
+                            foreach (Wrath_IPCSubscriber.DPSRotationMode targeting in Enum.GetValues(typeof(Wrath_IPCSubscriber.DPSRotationMode)))
                             {
                                 if (ImGui.Selectable(targeting.ToCustomString()))
                                 {
@@ -747,6 +748,15 @@ public static class ConfigTab
                 ImGui.Unindent();
             }
             ImGuiComponents.HelpMarker("AutoDuty will ignore all non-boss chests, and only loot boss chests. (Only works with AD Looting)");
+
+            if (ImGui.Checkbox("Rebuild Navmesh on first dungeon load this session", ref Configuration.RebuildNavmeshOnFirstEntry))
+                Configuration.Save();
+            if (Configuration.RebuildNavmeshOnFirstEntry && Plugin.loadedDungeonsForRebuild.Count > 0)
+            {
+                ImGui.SameLine();
+                if (ImGui.Button("Clear cache of already visited dungeons"))
+                    Plugin.loadedDungeonsForRebuild.Clear();
+            }
 
             if (ImGui.Checkbox("Override Party Validation", ref Configuration.OverridePartyValidation))
                 Configuration.Save();
